@@ -111,9 +111,40 @@ r.GET("/welcome", func(c *gin.Context) {
    - 这行代码向客户端发送一个字符串响应，状态码为 200（HTTP OK）。
    - 响应的内容格式为 `"Hello %s %s"`，并将 `firstname` 和 `lastname` 的值插入到字符串中。
 
-例如：GET http://localhost:8080/welcome?firstname=111&lastname=222
+访问：GET http://localhost:8080/welcome?firstname=111&lastname=222
 
+### 四、从表单中获取数据
 
+当接收到一个 POST 请求到 `/form_post` 路径时，提取用户提交的消息和昵称，并返回一个 JSON 响应，确认消息已被成功提交。这个路由可以用于处理表单提交，提供用户反馈。
+
+```go
+r.POST("/form_post", func(c *gin.Context) {
+    message := c.PostForm("message")
+    nick := c.DefaultPostForm("nick", "anonymous")
+    c.JSON(http.StatusOK, gin.H{
+        "status":  "posted",
+        "message": message,
+        "nick":    nick,
+    })
+})
+```
+
+1. **`r.POST("/form_post", func(c \*gin.Context) {...})`**:
+   - 这行代码定义了一个处理 POST 请求的路由。路由的路径是 `/form_post`。
+   - 当收到匹配此路径的 POST 请求时，Gin 会调用后面的匿名函数 `func(c *gin.Context)`。
+2. **`message := c.PostForm("message")`**:
+   - 这行代码从 POST 请求的表单数据中获取 `message` 字段的值。
+3. **`nick := c.DefaultPostForm("nick", "anonymous")`**:
+   - 这行代码从 POST 请求的表单数据中获取 `nick` 字段的值。如果没有提供该字段，则使用默认值 `"anonymous"`。
+   - `c.DefaultPostForm` 方法用于获取 POST 表单参数并指定默认值。
+4. **`c.JSON(http.StatusOK, gin.H{...})`**:
+   - 这行代码向客户端发送一个 JSON 响应，状态码为 200（HTTP OK）。
+   - 响应的内容是一个 JSON 对象，包含三个字段：
+     - `"status"`: 固定值 `"posted"`，表示请求已处理。
+     - `"message"`: 用户提交的消息内容。
+     - `"nick"`: 用户的昵称，如果未提供则为 `"anonymous"`。
+
+访问：POST http://localhost:8080/form_post
 
 
 

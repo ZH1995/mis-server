@@ -43,6 +43,16 @@ func main() {
 		c.String(http.StatusOK, "Hello %s %s", firstname, lastname)
 	})
 
+	r.POST("/form_post", func(c *gin.Context) {
+		message := c.PostForm("message")
+		nick := c.DefaultPostForm("nick", "anonymous")
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "posted",
+			"message": message,
+			"nick":    nick,
+		})
+	})
+
 	// 启动HTTP服务器，默认监听在0.0.0.0:8080
 	r.Run()
 }
