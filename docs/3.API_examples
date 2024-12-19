@@ -1,0 +1,83 @@
+### Gin中使用HTTP方法的方式
+
+```go
+func main() {
+  // Creates a gin router with default middleware:
+  // logger and recovery (crash-free) middleware
+  router := gin.Default()
+
+  router.GET("/someGet", getting)
+  router.POST("/somePost", posting)
+  router.PUT("/somePut", putting)
+  router.DELETE("/someDelete", deleting)
+  router.PATCH("/somePatch", patching)
+  router.HEAD("/someHead", head)
+  router.OPTIONS("/someOptions", options)
+
+  // By default it serves on :8080 unless a
+  // PORT environment variable was defined.
+  router.Run()
+  // router.Run(":3000") for a hard coded port
+}
+```
+
+
+
+### 获取路径中的参数
+
+#### GET请求
+
+（1）定义了一个 HTTP GET 请求的路由。
+
+（2）`/user/:name/*action`：这是路由的路径模式：
+
+- `:name`：这是一个路径参数（Path Parameter），表示 `name` 是一个动态值，可以匹配 `/user/` 后面的任何字符串。
+- `*action`：这是一个通配符路径参数（Wildcard Path Parameter），表示 `action` 可以匹配 `/user/:name/` 后面的所有路径。
+
+例如：
+
+- `/user/alice/edit`：`name` 是 `"alice"`，`action` 是 `"/edit"`。
+- `/user/bob/profile/settings`：`name` 是 `"bob"`，`action` 是 `"/profile/settings"`。
+
+（3）接下来获取指定名称的参数的值：
+
+- **`c.Param("name")`**：从请求路径中提取 `:name` 参数的值。
+- **`c.Param("action")`**：从请求路径中提取 `*action` 参数的值。
+
+（4）返回响应：
+
+- **`c.String`**：Gin 提供的一个快捷方法，用于返回纯文本响应。
+- **`http.StatusOK`**：HTTP 状态码 200，表示请求成功。
+- **`message`**：作为响应的内容返回给客户端。
+
+```go
+router.GET("/user/:name/*action", func(c *gin.Context) {
+    name := c.Param("name")
+    action := c.Param("action")
+    message := name + " is " + action
+    c.String(http.StatusOK, message)
+  })
+```
+
+例如：
+
+- 对于 `/user/alice/edit`，响应内容是：`"alice is /edit"`。
+- 对于 `/user/bob/profile/settings`，响应内容是：`"bob is /profile/settings"`。
+
+#### 路径匹配
+
+定义了一个处理 POST 请求的路由。路由的路径是 `/user/:name/*action`，其中 `:name` 是一个路径参数，表示用户的名字，而 `*action` 是一个捕获所有后续路径部分的参数。
+
+当收到匹配此路径的 POST 请求时，Gin 会调用后面的匿名函数 `func(c *gin.Context)`。
+
+`c.FullPath()` 方法返回当前请求的完整路径，检查当前请求的完整路径是否与定义的路径 `/user/:name/*action` 完全匹配。`b` 将是一个布尔值，表示路径是否匹配。
+
+向客户端发送一个字符串响应，状态码为 200，响应的内容是布尔值 `b` 的字符串表示（`true` 或 `false`），格式化为字符串。
+
+```go
+r.POST("/user/:name/*action", func(c *gin.Context) {
+    b := c.FullPath() == "/user/:name/*action"
+    c.String(http.StatusOK, "%t", b)
+})
+```
+
