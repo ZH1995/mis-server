@@ -1,4 +1,4 @@
-### Gin中使用HTTP方法的方式
+### 一、使用HTTP协议中的几种请求方法
 
 ```go
 func main() {
@@ -23,9 +23,20 @@ func main() {
 
 
 
-### 获取路径中的参数
+### 二、路径中的参数
 
 #### GET请求
+
+```go
+router.GET("/user/:name/*action", func(c *gin.Context) {
+    name := c.Param("name")
+    action := c.Param("action")
+    message := name + " is " + action
+    c.String(http.StatusOK, message)
+  })
+```
+
+
 
 （1）定义了一个 HTTP GET 请求的路由。
 
@@ -47,24 +58,26 @@ func main() {
 （4）返回响应：
 
 - **`c.String`**：Gin 提供的一个快捷方法，用于返回纯文本响应。
+
 - **`http.StatusOK`**：HTTP 状态码 200，表示请求成功。
+
 - **`message`**：作为响应的内容返回给客户端。
 
-```go
-router.GET("/user/:name/*action", func(c *gin.Context) {
-    name := c.Param("name")
-    action := c.Param("action")
-    message := name + " is " + action
-    c.String(http.StatusOK, message)
-  })
-```
+  
 
-例如：
+  例如：
 
 - 对于 `/user/alice/edit`，响应内容是：`"alice is /edit"`。
 - 对于 `/user/bob/profile/settings`，响应内容是：`"bob is /profile/settings"`。
 
 #### 路径匹配
+
+```go
+r.POST("/user/:name/*action", func(c *gin.Context) {
+    b := c.FullPath() == "/user/:name/*action"
+    c.String(http.StatusOK, "%t", b)
+})
+```
 
 定义了一个处理 POST 请求的路由。路由的路径是 `/user/:name/*action`，其中 `:name` 是一个路径参数，表示用户的名字，而 `*action` 是一个捕获所有后续路径部分的参数。
 
@@ -74,10 +87,47 @@ router.GET("/user/:name/*action", func(c *gin.Context) {
 
 向客户端发送一个字符串响应，状态码为 200，响应的内容是布尔值 `b` 的字符串表示（`true` 或 `false`），格式化为字符串。
 
+### 三、查询字符串中的参数
+
 ```go
-r.POST("/user/:name/*action", func(c *gin.Context) {
-    b := c.FullPath() == "/user/:name/*action"
-    c.String(http.StatusOK, "%t", b)
+r.GET("/welcome", func(c *gin.Context) {
+    firstname := c.DefaultQuery("firstname", "Guest")
+    lastname := c.Query("lastname")
+    c.String(http.StatusOK, "Hello %s %s", firstname, lastname)
 })
 ```
+
+这段代码的作用是，当接收到一个 GET 请求到 `/welcome` 路径时，返回一个问候字符串，包含用户的名字。如果请求中没有提供 `firstname` 参数，则使用默认值 `"Guest"`；`lastname` 参数如果未提供，将返回空字符串。这个路由可以用于向用户发送个性化的欢迎信息。
+
+1. **`r.GET("/welcome", func(c \*gin.Context) {...})`**:
+   - 这行代码定义了一个处理 GET 请求的路由。路由的路径是 `/welcome`。
+   - 当收到匹配此路径的 GET 请求时，Gin 会调用后面的匿名函数 `func(c *gin.Context)`。
+2. **`firstname := c.DefaultQuery("firstname", "Guest")`**:
+   - 这行代码从查询参数中获取 `firstname` 的值。如果没有提供该参数，则使用默认值 `"Guest"`。
+   - `c.DefaultQuery` 方法用于获取查询参数并指定默认值。
+3. **`lastname := c.Query("lastname")`**:
+   - 这行代码从查询参数中获取 `lastname` 的值。如果没有提供该参数，则返回空字符串。
+4. **`c.String(http.StatusOK, "Hello %s %s", firstname, lastname)`**:
+   - 这行代码向客户端发送一个字符串响应，状态码为 200（HTTP OK）。
+   - 响应的内容格式为 `"Hello %s %s"`，并将 `firstname` 和 `lastname` 的值插入到字符串中。
+
+例如：GET http://localhost:8080/welcome?firstname=111&lastname=222
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

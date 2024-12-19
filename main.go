@@ -37,6 +37,12 @@ func main() {
 		c.String(http.StatusOK, "The avaliable groups are [...]")
 	})
 
+	r.GET("/welcome", func(c *gin.Context) {
+		firstname := c.DefaultQuery("firstname", "Guest")
+		lastname := c.Query("lastname")
+		c.String(http.StatusOK, "Hello %s %s", firstname, lastname)
+	})
+
 	// 启动HTTP服务器，默认监听在0.0.0.0:8080
 	r.Run()
 }
