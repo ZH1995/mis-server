@@ -68,6 +68,7 @@ router.GET("/user/:name/*action", func(c *gin.Context) {
   例如：
 
 - 对于 `/user/alice/edit`，响应内容是：`"alice is /edit"`。
+
 - 对于 `/user/bob/profile/settings`，响应内容是：`"bob is /profile/settings"`。
 
 #### 路径匹配
@@ -148,11 +149,45 @@ r.POST("/form_post", func(c *gin.Context) {
 
 
 
+### 五、接收map类型的参数
 
+当接收到一个 POST 请求到 `/post` 路径时，从查询参数和表单数据中提取 `ids` 和 `names` 的值，并将这些值打印到控制台。这可以用于调试或查看客户端发送的数据。
 
+```go
+r.POST("/post", func(c *gin.Context) {
+    ids := c.QueryMap("ids")
+    names := c.PostFormMap("names")
+    fmt.Printf("ids: %v; names: %v\n", ids, names)
+})
+```
 
+1. **`r.POST("/post", func(c \*gin.Context) {...})`**:
+   - 这行代码定义了一个处理 POST 请求的路由。路由的路径是 `/post`。
+   - 当收到匹配此路径的 POST 请求时，Gin 会调用后面的匿名函数 `func(c *gin.Context)`。
+2. **`ids := c.QueryMap("ids")`**:
+   - 这行代码从查询参数中获取名为 `ids` 的所有值，并将其存储在一个映射（map）中。
+   - 这通常用于处理多个相同名称的查询参数，例如 `?ids=1&ids=2&ids=3`，结果会是一个包含所有 `ids` 值的映射。
+3. **`names := c.PostFormMap("names")`**:
+   - 这行代码从 POST 请求的表单数据中获取名为 `names` 的所有值，并将其存储在一个映射中。
+   - 类似于 `ids`，这也适用于处理多个相同名称的表单字段，例如 `names=Alice&names=Bob`，结果会是一个包含所有 `names` 值的映射。
+4. **`fmt.Printf("ids: %v; names: %v\n", ids, names)`**:
+   - 这行代码将 `ids` 和 `names` 的内容打印到控制台，格式为 `ids: [值]; names: [值]`。
+   - `%v` 是 Go 的格式化动词，用于打印变量的值。
 
+访问：
 
+```
+POST /post?ids[a]=1234&ids[b]=hello HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+names[first]=thinkerou&names[second]=tianou
+```
+
+输出如下：
+
+```bash
+ids: map[a:1234 b:hello]; names: map[first:thinkerou second:tianou]
+```
 
 
 

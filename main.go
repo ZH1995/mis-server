@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,9 @@ func main() {
 	})
 
 	r.POST("/post", func(c *gin.Context) {
-		c.String(http.StatusOK, "This is a POST request")
+		ids := c.QueryMap("ids")
+		names := c.PostFormMap("names")
+		fmt.Printf("ids: %v; names: %v\n", ids, names)
 	})
 
 	r.GET("/user/:name/*action", func(c *gin.Context) {
