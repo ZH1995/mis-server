@@ -23,7 +23,7 @@ var AppConfig *Config
 func InitConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("./config")
+	viper.AddConfigPath("../../config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal("error reading config file: ", err)

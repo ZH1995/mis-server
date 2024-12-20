@@ -1,7 +1,7 @@
-package controller
+package v1
 
 import (
-	"MyGin/global"
+	"MyGin/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,8 +10,8 @@ import (
 
 func LikeArticle(ctx *gin.Context) {
 	articleID := ctx.Param("id")
-	likeKey := "article:" + articleID + ":like"
-	if err := global.RedisDB.Incr(likeKey).Err(); err != nil {
+	err := service.LikeArticle(articleID)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -24,8 +24,7 @@ func LikeArticle(ctx *gin.Context) {
 
 func GetArticleLikes(ctx *gin.Context) {
 	articleID := ctx.Param("id")
-	likeKey := "article:" + articleID + ":like"
-	likes, err := global.RedisDB.Get(likeKey).Result()
+	likes, err := service.GetArticleLikes(articleID)
 	if err == redis.Nil {
 		likes = "0"
 	} else if err != nil {

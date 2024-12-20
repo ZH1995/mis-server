@@ -1,8 +1,8 @@
-package controller
+package v1
 
 import (
-	"MyGin/global"
-	"MyGin/model"
+	"MyGin/internal/model"
+	"MyGin/internal/service"
 	"errors"
 	"net/http"
 
@@ -19,14 +19,7 @@ func CreateArticle(ctx *gin.Context) {
 		return
 	}
 
-	if err := global.Db.AutoMigrate(&article); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-
-	if err := global.Db.Create(&article).First(&article).Error; err != nil {
+	if err := service.CreateArticle(&article); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -39,8 +32,8 @@ func CreateArticle(ctx *gin.Context) {
 }
 
 func GetArticles(ctx *gin.Context) {
-	var articles []model.Article
-	if err := global.Db.Find(&articles).Error; err != nil {
+	articles, err := service.GetArticles()
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
@@ -60,11 +53,10 @@ func GetArticles(ctx *gin.Context) {
 	)
 }
 
-func GetArticlesById(ctx *gin.Context) {
+func GetArticleById(ctx *gin.Context) {
 	id := ctx.Param("id")
-
-	var article model.Article
-	if err := global.Db.Where("id = ?", id).First(&article).Error; err != nil {
+	article, err := service.GetArticleByID(id)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
