@@ -4,6 +4,7 @@ import (
 	"MyGin/internal/model"
 	"MyGin/internal/repository/mysql"
 	"MyGin/pkg/util"
+	"time"
 )
 
 func Register(user *model.User) error {
@@ -12,6 +13,7 @@ func Register(user *model.User) error {
 		return err
 	}
 	user.Password = hashedPwd
+	user.CreateTime = time.Now().Unix()
 	return mysql.CreateUser(user)
 }
 
