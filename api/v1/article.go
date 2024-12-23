@@ -5,6 +5,7 @@ import (
 	"MyGin/internal/service"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ func CreateArticle(ctx *gin.Context) {
 		})
 		return
 	}
-
+	article.CreateTime = time.Now().Unix()
 	if err := service.CreateArticle(&article); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
