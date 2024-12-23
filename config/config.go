@@ -16,6 +16,7 @@ type Config struct {
 		MaxIdleConns int
 		MaxOpenConns int
 	}
+	Log LogConfig `mapstructure:"log"`
 }
 
 var AppConfig *Config
@@ -34,6 +35,8 @@ func InitConfig() {
 		log.Fatal("error unmarshalling config: ", err)
 	}
 
+	LogConf = AppConfig.Log
+	initLogger()
 	initDB()
 	initRedis()
 }

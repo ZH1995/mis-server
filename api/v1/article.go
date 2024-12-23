@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"MyGin/global"
 	"MyGin/internal/model"
 	"MyGin/internal/service"
 	"errors"
@@ -39,6 +40,7 @@ func GetArticles(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
+			global.Logger.Error("111")
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),

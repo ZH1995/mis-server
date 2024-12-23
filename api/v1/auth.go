@@ -1,11 +1,13 @@
 package v1
 
 import (
+	"MyGin/global"
 	"MyGin/internal/model"
 	"MyGin/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func Register(ctx *gin.Context) {
@@ -35,6 +37,10 @@ func Login(ctx *gin.Context) {
 		Password string `json:"password"`
 	}
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		global.Logger.Error("Login bind json error",
+			zap.Error(err),
+			zap.String("raw_data", ctx.Request.PostForm.Encode()),
+		)
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
@@ -43,12 +49,19 @@ func Login(ctx *gin.Context) {
 
 	token, err := service.Login(input.Username, input.Password)
 	if err != nil {
+		global.Logger.Error("Login failed",
+			zap.String("username", input.Username),
+			zap.Error(err),
+		)
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
+	global.Logger.Info("Login success",
+		zap.String("username", input.Username),
+	)
 	ctx.JSON(http.StatusOK, gin.H{
 		"token": token,
 	})

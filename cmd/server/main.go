@@ -3,14 +3,21 @@ package main
 import (
 	v1 "MyGin/api/v1"
 	config "MyGin/config"
+	"MyGin/global"
 	"MyGin/internal/middleware"
+	"time"
 
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	config.InitConfig()
-	r := gin.Default()
+	defer global.Logger.Sync()
+
+	r := gin.New()
+	r.Use(ginzap.Ginzap(global.Logger, time.RFC3339, true))
+	r.Use(ginzap.RecoveryWithZap(global.Logger, true))
 
 	auth := r.Group("/api/auth")
 	{
