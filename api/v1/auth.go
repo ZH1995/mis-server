@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"MyGin/global"
 	"MyGin/internal/model"
 	"MyGin/internal/service"
+	"MyGin/pkg/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +37,7 @@ func Login(ctx *gin.Context) {
 		Password string `json:"password"`
 	}
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		global.Logger.Error("Login bind json error",
+		util.L(ctx).Error("Login bind json error",
 			zap.Error(err),
 			zap.String("raw_data", ctx.Request.PostForm.Encode()),
 		)
@@ -49,7 +49,7 @@ func Login(ctx *gin.Context) {
 
 	token, err := service.Login(input.Username, input.Password)
 	if err != nil {
-		global.Logger.Error("Login failed",
+		util.L(ctx).Error("Login failed",
 			zap.String("username", input.Username),
 			zap.Error(err),
 		)
@@ -59,7 +59,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	global.Logger.Info("Login success",
+	util.L(ctx).Info("Login success",
 		zap.String("username", input.Username),
 	)
 	ctx.JSON(http.StatusOK, gin.H{
