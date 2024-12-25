@@ -1,8 +1,15 @@
 package main
 
+// @title           MyGin API
+// @version         1.0
+// @description     This is a sample server using Gin framework.
+// @host            localhost:8080
+// @BasePath        /api
+
 import (
 	v1 "MyGin/api/v1"
 	config "MyGin/config"
+	"MyGin/docs"
 	"MyGin/global"
 	"MyGin/internal/middleware"
 	"MyGin/pkg/util"
@@ -10,10 +17,21 @@ import (
 
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
 
 func main() {
+
+	// programmatically set swagger info
+	docs.SwaggerInfo.Title = "MyGin API"
+	docs.SwaggerInfo.Description = "This is a sample server using Gin framework."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	config.InitConfig()
 	defer global.Logger.Sync()
 
@@ -48,6 +66,8 @@ func main() {
 		}
 	})
 	r.Use(ginzap.RecoveryWithZap(global.Logger, true))
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := r.Group("/api/auth")
 	{

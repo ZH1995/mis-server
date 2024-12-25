@@ -31,11 +31,34 @@ func Register(ctx *gin.Context) {
 	})
 }
 
+// LoginRequest 登录请求参数
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// LoginResponse 登录响应
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+// ErrorResponse 错误响应
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// @Summary      User Login
+// @Description  Authenticate user and return JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input body LoginRequest true "Login Credentials"
+// @Success      200  {object}  LoginResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      401  {object}  ErrorResponse
+// @Router       /auth/login [post]
 func Login(ctx *gin.Context) {
-	var input struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var input LoginRequest
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		util.L(ctx).Error("Login bind json error",
 			zap.Error(err),
