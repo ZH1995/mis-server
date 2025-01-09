@@ -1,5 +1,0 @@
-// 生成swagger文档
-swag init -g cmd/server/main.go --parseDependency --parseInternal
-
-// 浏览器查看swagger文档
-http://localhost:8080/swagger/index.html
